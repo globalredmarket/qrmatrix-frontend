@@ -1700,18 +1700,17 @@ const qrCodes = [
 ];
 
 // ═══════════════ SESIÓN PERSISTENTE ═══════════════
-// Al cargar la página, revisa si hay sesión guardada
-window.addEventListener('load', () => {
+// Se ejecuta al final para que enterApp ya esté definida
+function checkSession() {
   const token = localStorage.getItem('qrflex_token');
   const userName = localStorage.getItem('qrflex_user_name');
 
   if (token && userName) {
-    // Hay sesión guardada — ir directo al app sin pasar por landing
     document.getElementById('landing').style.display = 'none';
     document.getElementById('auth-screen').style.display = 'none';
     enterApp(userName);
   }
-});
+}
 
 // ═══════════════ LANDING / AUTH ═══════════════
 function showAuth(tab) {
@@ -2013,4 +2012,19 @@ function showToast(msg) {
   t.textContent = msg;
   t.classList.add('show');
   clearTimeout(window._toastTimer);
-  wi
+  window._toastTimer = setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+// Click outside modal closes it
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', e => {
+    if (e.target === overlay) overlay.classList.remove('open');
+  });
+});
+
+// Init
+generatePreviewQR();
+checkSession();
+</script>
+</body>
+</html>
