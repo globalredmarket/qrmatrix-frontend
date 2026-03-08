@@ -1147,23 +1147,23 @@
         <div class="stats-grid">
           <div class="stat-card">
             <div class="stat-card-label">Total QR Codes</div>
-            <div class="stat-card-value">3</div>
-            <div class="stat-card-change">↑ 2 este mes</div>
+            <div class="stat-card-value" id="dash-total-qr">0</div>
+            <div class="stat-card-change" id="dash-total-qr-sub">—</div>
           </div>
           <div class="stat-card">
             <div class="stat-card-label">Escaneos hoy</div>
-            <div class="stat-card-value">247</div>
-            <div class="stat-card-change">↑ +18% vs ayer</div>
+            <div class="stat-card-value" id="dash-scans-today">0</div>
+            <div class="stat-card-change" id="dash-scans-today-sub">—</div>
           </div>
           <div class="stat-card">
             <div class="stat-card-label">Total escaneos</div>
-            <div class="stat-card-value">12,480</div>
-            <div class="stat-card-change">↑ +34% este mes</div>
+            <div class="stat-card-value" id="dash-total-scans">0</div>
+            <div class="stat-card-change" id="dash-total-scans-sub">—</div>
           </div>
           <div class="stat-card">
-            <div class="stat-card-label">Tasa de conversión</div>
-            <div class="stat-card-value">68%</div>
-            <div class="stat-card-change down">↓ -2% vs ayer</div>
+            <div class="stat-card-label">QRs activos</div>
+            <div class="stat-card-value" id="dash-active-qr">0</div>
+            <div class="stat-card-change" id="dash-active-qr-sub">—</div>
           </div>
         </div>
 
@@ -1693,11 +1693,8 @@ let qrInstance = null;
 let currentEditIndex = null;
 let logoDataUrl = null;
 
-const qrCodes = [
-  { id: 1, name: 'Menu Restaurante', type: 'menu', url: 'https://menu.restaurante.com', shortCode: 'men123', scans: 5420, active: true, color: '#0a0a0f', bg: '#ffffff' },
-  { id: 2, name: 'WiFi Oficina', type: 'wifi', url: 'WIFI:T:WPA;S:OficinaWifi;P:pass1234;;', shortCode: 'wif456', scans: 3890, active: true, color: '#1a1a2e', bg: '#ffffff' },
-  { id: 3, name: 'Tarjeta Digital', type: 'vcard', url: 'https://vcard.qrflex.link/demo', shortCode: 'vcd789', scans: 3170, active: true, color: '#ff4d2e', bg: '#ffffff' },
-];
+// QR codes — se llenan desde el backend al iniciar sesión
+let qrCodes = [];
 
 // ═══════════════ SESIÓN PERSISTENTE ═══════════════
 // Se ejecuta al final para que enterApp ya esté definida
@@ -1808,9 +1805,64 @@ function enterApp(name) {
   document.getElementById('auth-screen').style.display = 'none';
   document.getElementById('landing').style.display = 'none';
   document.getElementById('app').style.display = 'block';
-  renderQRList();
-  renderLinksTable();
+
+  // Cargar datos reales del backend
+  loadAppData();
   generatePreviewQR();
+}
+
+async function loadAppData() {
+  const token = localStorage.getItem('qrflex_token');
+  if (!token) return;
+
+  try {
+    // Cargar QR codes reales
+    const res = await fetch(`${BACKEND_URL}/api/qrcodes`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    const data = await res.json();
+
+    if (Array.isArray(data)) {
+      // Convertir formato del backend al formato del frontend
+      qrCodes = data.map(qr => ({
+        id: qr.id,
+        name: qr.name,
+        type: qr.type,
+        url: qr.destination_url,
+        shortCode: qr.short_code,
+        scans: qr.scans_count?.[0]?.count || 0,
+        active: qr.active,
+        color: qr.fg_color || '#000000',
+        bg: qr.bg_color || '#ffffff'
+      }));
+
+      // Actualizar dashboard con datos reales
+      const totalQR = qrCodes.length;
+      const activeQR = qrCodes.filter(q => q.active).length;
+      const totalScans = qrCodes.reduce((sum, q) => sum + (q.scans || 0), 0);
+
+      document.getElementById('dash-total-qr').textContent = totalQR;
+      document.getElementById('dash-active-qr').textContent = activeQR;
+      document.getElementById('dash-total-scans').textContent = totalScans.toLocaleString();
+      document.getElementById('dash-total-qr-sub').textContent = totalQR > 0 ? `${activeQR} activos` : 'Crea tu primer QR';
+      document.getElementById('dash-active-qr-sub').textContent = activeQR > 0 ? '✅ En línea' : '—';
+      document.getElementById('dash-total-scans-sub').textContent = totalScans > 0 ? '↑ Total acumulado' : 'Aún sin escaneos';
+      document.getElementById('dash-scans-today').textContent = '—';
+      document.getElementById('dash-scans-today-sub').textContent = 'Escanea un QR para ver';
+
+      // Actualizar badge del sidebar
+      document.getElementById('qr-count-badge').textContent = totalQR;
+
+      renderQRList();
+      renderLinksTable();
+    }
+  } catch (err) {
+    console.error('Error cargando datos:', err);
+    // Si falla el backend, mostrar vacío
+    qrCodes = [];
+    renderQRList();
+    renderLinksTable();
+  }
 }
 
 function doLogout() {
@@ -1938,30 +1990,116 @@ function handleLogoUpload(e) {
 }
 
 function downloadQR(format) {
-  const canvas = document.querySelector('#qr-output canvas');
-  if (!canvas) return showToast('Genera un QR primero');
-  const link = document.createElement('a');
-  link.download = 'qrflex-code.' + format;
-  link.href = canvas.toDataURL('image/' + (format === 'jpg' ? 'jpeg' : 'png'));
-  link.click();
-  showToast('⬇ Descargando ' + format.toUpperCase() + '...');
+  // Buscar canvas en el preview principal
+  let canvas = document.querySelector('#qr-output canvas');
+
+  if (!canvas) {
+    // Intentar regenerar y esperar
+    generatePreviewQR();
+    setTimeout(() => {
+      canvas = document.querySelector('#qr-output canvas');
+      if (!canvas) return showToast('⚠️ Primero escribe una URL y genera el QR');
+      triggerDownload(canvas, format);
+    }, 600);
+    return;
+  }
+  triggerDownload(canvas, format);
+}
+
+function triggerDownload(canvas, format) {
+  try {
+    const link = document.createElement('a');
+    const name = document.getElementById('qr-name-input')?.value?.trim() || 'qrflex-code';
+    link.download = name + '.' + format;
+
+    if (format === 'svg') {
+      // Para SVG creamos uno básico con el canvas embebido
+      const dataUrl = canvas.toDataURL('image/png');
+      const size = canvas.width;
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}">
+        <image href="${dataUrl}" width="${size}" height="${size}"/>
+      </svg>`;
+      const blob = new Blob([svg], { type: 'image/svg+xml' });
+      link.href = URL.createObjectURL(blob);
+    } else {
+      link.href = canvas.toDataURL('image/' + (format === 'jpg' ? 'jpeg' : 'png'));
+    }
+
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    showToast('✅ Descargando ' + format.toUpperCase() + '...');
+  } catch (e) {
+    showToast('❌ Error al descargar, intenta de nuevo');
+  }
 }
 
 function downloadMiniQR(i) {
-  showToast('⬇ Descargando QR: ' + qrCodes[i].name);
+  const el = document.getElementById('qr-mini-' + i);
+  if (!el) return showToast('QR no encontrado');
+  const canvas = el.querySelector('canvas');
+  if (!canvas) return showToast('⚠️ QR no disponible');
+  triggerDownload(canvas, 'png');
 }
 
-function saveQR() {
-  const name = document.getElementById('qr-name-input').value.trim() || 'Nuevo QR';
-  const url = document.getElementById('qr-url-input').value.trim() || 'https://qrflex.link';
+async function saveQR() {
+  const name = document.getElementById('qr-name-input').value.trim();
+  const url = document.getElementById('qr-url-input').value.trim();
   const color = document.getElementById('qr-fg-color').value;
   const bg = document.getElementById('qr-bg-color').value;
-  const sc = Math.random().toString(36).substr(2,6);
-  qrCodes.push({ id: Date.now(), name, type: 'url', url, shortCode: sc, scans: 0, active: true, color, bg });
-  document.getElementById('qr-name-input').value = '';
-  document.getElementById('qr-url-input').value = 'https://ejemplo.com';
-  showToast('✅ QR "' + name + '" guardado exitosamente');
-  renderLinksTable();
+
+  if (!name) return showToast('⚠️ Escribe un nombre para el QR');
+  if (!url) return showToast('⚠️ Escribe una URL de destino');
+
+  showToast('⏳ Guardando QR...');
+
+  const token = localStorage.getItem('qrflex_token');
+
+  try {
+    const res = await fetch(`${BACKEND_URL}/api/qrcodes`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        name,
+        type: document.querySelector('.qr-type-btn.active .qr-type-label')?.textContent?.toLowerCase() || 'url',
+        destination_url: url,
+        fg_color: color,
+        bg_color: bg
+      })
+    });
+
+    const data = await res.json();
+    if (data.error) return showToast('❌ ' + data.error);
+
+    // Agregar a la lista local
+    qrCodes.unshift({
+      id: data.id,
+      name: data.name,
+      type: data.type,
+      url: data.destination_url,
+      shortCode: data.short_code,
+      scans: 0,
+      active: true,
+      color: data.fg_color,
+      bg: data.bg_color
+    });
+
+    document.getElementById('qr-name-input').value = '';
+    document.getElementById('qr-url-input').value = 'https://';
+
+    showToast('✅ QR "' + name + '" guardado — Link: ' + data.full_link);
+
+    // Actualizar badge y listas
+    document.getElementById('qr-count-badge').textContent = qrCodes.length;
+    document.getElementById('dash-total-qr').textContent = qrCodes.length;
+    renderLinksTable();
+
+  } catch (err) {
+    showToast('❌ Error de conexión al guardar');
+  }
 }
 
 // ═══════════════ LINKS ═══════════════
@@ -1988,14 +2126,34 @@ function openEditLink(i) {
   openModal('modal-edit-link');
 }
 
-function saveEditLink() {
+async function saveEditLink() {
   const newUrl = document.getElementById('edit-dest-url').value.trim();
-  if (!newUrl) return showToast('Escribe un URL válido');
-  qrCodes[currentEditIndex].url = newUrl;
-  closeModal('modal-edit-link');
-  renderLinksTable();
-  renderQRList();
-  showToast('✅ Destino actualizado — sin reimprimir el QR');
+  if (!newUrl) return showToast('⚠️ Escribe un URL válido');
+
+  const qr = qrCodes[currentEditIndex];
+  const token = localStorage.getItem('qrflex_token');
+  showToast('⏳ Actualizando destino...');
+
+  try {
+    const res = await fetch(`${BACKEND_URL}/api/qrcodes/${qr.id}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({ destination_url: newUrl })
+    });
+    const data = await res.json();
+    if (data.error) return showToast('❌ ' + data.error);
+
+    qrCodes[currentEditIndex].url = newUrl;
+    closeModal('modal-edit-link');
+    renderLinksTable();
+    renderQRList();
+    showToast('✅ Destino actualizado — sin reimprimir el QR');
+  } catch (err) {
+    showToast('❌ Error de conexión');
+  }
 }
 
 // ═══════════════ MODALS ═══════════════
