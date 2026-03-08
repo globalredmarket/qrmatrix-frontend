@@ -5,7 +5,7 @@
 
 const QRFLEX_CONFIG = {
   // 👇 CAMBIA ESTO por tu URL de Railway después de desplegar
-  API_URL: 'https://tu-proyecto.up.railway.app',
+  API_URL: 'http://qrmatrix-production.up.railway.app/',
 
   // Esta función construye el link completo del QR dinámico
   getQRLink: (shortCode) => `${QRFLEX_CONFIG.API_URL}/r/${shortCode}`,
