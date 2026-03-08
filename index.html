@@ -1092,7 +1092,7 @@
         </div>
         <div class="nav-item" onclick="navTo('my-qrs', this)">
           <span class="nav-icon">⬛</span> Mis QR Codes
-          <span class="nav-badge" id="qr-count-badge">3</span>
+          <span class="nav-badge" id="qr-count-badge">0</span>
         </div>
         <div class="nav-item" onclick="navTo('creator', this)">
           <span class="nav-icon">✨</span> Crear QR
@@ -1188,10 +1188,8 @@
             <div class="card-header"><span class="card-title">QR más activos</span></div>
             <table class="data-table">
               <thead><tr><th>Nombre</th><th>Escaneos</th><th>Estado</th></tr></thead>
-              <tbody>
-                <tr><td>Menu Restaurante</td><td>5,420</td><td><span class="pill pill-green">Activo</span></td></tr>
-                <tr><td>WiFi Oficina</td><td>3,890</td><td><span class="pill pill-green">Activo</span></td></tr>
-                <tr><td>Tarjeta Digital</td><td>3,170</td><td><span class="pill pill-green">Activo</span></td></tr>
+              <tbody id="dash-active-qrs-tbody">
+                <tr><td colspan="3" style="color:var(--muted);text-align:center;padding:20px">Crea tu primer QR para ver estadísticas</td></tr>
               </tbody>
             </table>
           </div>
@@ -1852,6 +1850,22 @@ async function loadAppData() {
 
       // Actualizar badge del sidebar
       document.getElementById('qr-count-badge').textContent = totalQR;
+
+      // Actualizar tabla QR más activos
+      const tbody = document.getElementById('dash-active-qrs-tbody');
+      if (tbody) {
+        if (qrCodes.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="3" style="color:var(--muted);text-align:center;padding:20px">Crea tu primer QR para ver estadísticas</td></tr>';
+        } else {
+          tbody.innerHTML = qrCodes.slice(0, 5).map(qr => `
+            <tr>
+              <td>${qr.name}</td>
+              <td>${(qr.scans || 0).toLocaleString()}</td>
+              <td><span class="pill ${qr.active ? 'pill-green' : 'pill-gray'}">${qr.active ? 'Activo' : 'Inactivo'}</span></td>
+            </tr>
+          `).join('');
+        }
+      }
 
       renderQRList();
       renderLinksTable();
