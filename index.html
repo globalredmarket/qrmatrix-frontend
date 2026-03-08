@@ -1122,12 +1122,13 @@
           <span class="nav-icon">💳</span> Facturación
         </div>
       </nav>
-      <div class="sidebar-user">
+      <div class="sidebar-user" onclick="doLogout()" title="Cerrar sesión">
         <div class="user-avatar" id="user-avatar-sidebar">DU</div>
         <div class="user-info">
           <div class="user-name" id="user-name-sidebar">Demo User</div>
           <div class="user-plan">Plan Growth 🟢</div>
         </div>
+        <span style="color:var(--sidebar-text);font-size:0.9rem" title="Cerrar sesión">⏻</span>
       </div>
     </aside>
 
@@ -1521,14 +1522,14 @@
             <tbody>
               <tr>
                 <td><div style="display:flex;align-items:center;gap:10px"><div class="user-avatar" style="width:32px;height:32px;font-size:0.75rem">DU</div><strong>Demo User</strong></div></td>
-                <td>demo@qrflex.com</td>
+                <td><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="0b6f6e66644b7a796d676e7325686466">[email&#160;protected]</a></td>
                 <td><span class="pill pill-blue">Admin</span></td>
                 <td><span class="pill pill-green">Activo</span></td>
                 <td>—</td>
               </tr>
               <tr>
                 <td><div style="display:flex;align-items:center;gap:10px"><div class="user-avatar" style="width:32px;height:32px;font-size:0.75rem;background:#3c82ff">JD</div><strong>Juan Díaz</strong></div></td>
-                <td>juan@empresa.com</td>
+                <td><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="1a706f7b745a7f776a687f697b34797577">[email&#160;protected]</a></td>
                 <td><span class="pill pill-gray">Editor</span></td>
                 <td><span class="pill pill-green">Activo</span></td>
                 <td><button class="btn btn-outline btn-sm" onclick="showToast('Acceso revocado')">Revocar</button></td>
@@ -1686,7 +1687,7 @@
 <!-- Toast -->
 <div class="toast" id="toast"></div>
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 // ═══════════════ STATE ═══════════════
 let qrInstance = null;
 let currentEditIndex = null;
@@ -1697,6 +1698,20 @@ const qrCodes = [
   { id: 2, name: 'WiFi Oficina', type: 'wifi', url: 'WIFI:T:WPA;S:OficinaWifi;P:pass1234;;', shortCode: 'wif456', scans: 3890, active: true, color: '#1a1a2e', bg: '#ffffff' },
   { id: 3, name: 'Tarjeta Digital', type: 'vcard', url: 'https://vcard.qrflex.link/demo', shortCode: 'vcd789', scans: 3170, active: true, color: '#ff4d2e', bg: '#ffffff' },
 ];
+
+// ═══════════════ SESIÓN PERSISTENTE ═══════════════
+// Al cargar la página, revisa si hay sesión guardada
+window.addEventListener('load', () => {
+  const token = localStorage.getItem('qrflex_token');
+  const userName = localStorage.getItem('qrflex_user_name');
+
+  if (token && userName) {
+    // Hay sesión guardada — ir directo al app sin pasar por landing
+    document.getElementById('landing').style.display = 'none';
+    document.getElementById('auth-screen').style.display = 'none';
+    enterApp(userName);
+  }
+});
 
 // ═══════════════ LANDING / AUTH ═══════════════
 function showAuth(tab) {
@@ -1717,12 +1732,95 @@ function switchAuthTab(tab) {
   document.getElementById('form-register').style.display = tab === 'register' ? 'block' : 'none';
 }
 
-function doLogin() {
+// URL del backend — misma que en api.js
+const BACKEND_URL = 'https://qrmatrix-production.up.railway.app';
+
+async function doLogin() {
+  const isRegister = document.getElementById('form-register').style.display !== 'none';
+
+  if (isRegister) {
+    // ── REGISTRO ──
+    const name = document.querySelector('#form-register input[type=text]').value.trim();
+    const email = document.querySelector('#form-register input[type=email]').value.trim();
+    const password = document.querySelector('#form-register input[type=password]').value;
+
+    if (!name || !email || !password) return showToast('⚠️ Completa todos los campos');
+    if (password.length < 8) return showToast('⚠️ La contraseña debe tener al menos 8 caracteres');
+
+    showToast('⏳ Creando cuenta...');
+
+    try {
+      const res = await fetch(`${BACKEND_URL}/auth/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, password })
+      });
+      const data = await res.json();
+
+      if (data.error) return showToast('❌ ' + data.error);
+
+      showToast('✅ Cuenta creada. Revisa tu correo para confirmar.');
+      // Cambiar a login después del registro
+      switchAuthTab('login');
+      document.getElementById('login-email').value = email;
+
+    } catch (err) {
+      showToast('❌ Error de conexión con el servidor');
+    }
+
+  } else {
+    // ── LOGIN ──
+    const email = document.getElementById('login-email').value.trim();
+    const password = document.getElementById('login-pass').value;
+
+    if (!email || !password) return showToast('⚠️ Ingresa tu correo y contraseña');
+
+    showToast('⏳ Iniciando sesión...');
+
+    try {
+      const res = await fetch(`${BACKEND_URL}/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+      const data = await res.json();
+
+      if (data.error) return showToast('❌ ' + data.error);
+
+      // Guardar sesión real
+      const name = data.user?.user_metadata?.name || email.split('@')[0];
+      localStorage.setItem('qrflex_token', data.token);
+      localStorage.setItem('qrflex_user_name', name);
+      localStorage.setItem('qrflex_user_email', email);
+
+      enterApp(name);
+
+    } catch (err) {
+      showToast('❌ Error de conexión con el servidor');
+    }
+  }
+}
+
+function enterApp(name) {
+  const initials = name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
+  document.getElementById('user-avatar-sidebar').textContent = initials || 'U';
+  document.getElementById('user-name-sidebar').textContent = name;
+
   document.getElementById('auth-screen').style.display = 'none';
+  document.getElementById('landing').style.display = 'none';
   document.getElementById('app').style.display = 'block';
   renderQRList();
   renderLinksTable();
   generatePreviewQR();
+}
+
+function doLogout() {
+  localStorage.removeItem('qrflex_token');
+  localStorage.removeItem('qrflex_user_name');
+  localStorage.removeItem('qrflex_user_email');
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('landing').style.display = 'flex';
+  showToast('👋 Sesión cerrada');
 }
 
 // ═══════════════ NAVIGATION ═══════════════
@@ -1915,18 +2013,4 @@ function showToast(msg) {
   t.textContent = msg;
   t.classList.add('show');
   clearTimeout(window._toastTimer);
-  window._toastTimer = setTimeout(() => t.classList.remove('show'), 2800);
-}
-
-// Click outside modal closes it
-document.querySelectorAll('.modal-overlay').forEach(overlay => {
-  overlay.addEventListener('click', e => {
-    if (e.target === overlay) overlay.classList.remove('open');
-  });
-});
-
-// Init
-generatePreviewQR();
-</script>
-</body>
-</html>
+  wi
