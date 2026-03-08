@@ -1,0 +1,1932 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QRFlex — Códigos QR Dinámicos</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+  :root {
+    --ink: #0a0a0f;
+    --paper: #f5f4f0;
+    --accent: #ff4d2e;
+    --accent2: #00c896;
+    --muted: #888880;
+    --card: #ffffff;
+    --border: #e8e6e0;
+    --sidebar: #0d0d14;
+    --sidebar-text: #b8b6c0;
+    --sidebar-active: #ff4d2e;
+    --radius: 12px;
+    --shadow: 0 2px 16px rgba(0,0,0,0.07);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  h1,h2,h3,h4,h5 { font-family: 'Syne', sans-serif; }
+
+  /* ── LANDING ─────────────────────────────────── */
+  #landing {
+    min-height: 100vh;
+    background: var(--ink);
+    color: var(--paper);
+    display: flex;
+    flex-direction: column;
+  }
+
+  .land-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 48px;
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+  }
+
+  .logo {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .logo-dot { color: var(--accent); }
+
+  .land-nav-links { display: flex; gap: 32px; }
+  .land-nav-links a {
+    color: var(--sidebar-text);
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: color .2s;
+  }
+  .land-nav-links a:hover { color: #fff; }
+
+  .land-nav-cta { display: flex; gap: 12px; }
+
+  .btn {
+    padding: 10px 22px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 500;
+    cursor: pointer;
+    border: none;
+    transition: all .2s;
+  }
+  .btn-ghost {
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.2);
+    color: #fff;
+  }
+  .btn-ghost:hover { border-color: rgba(255,255,255,0.5); }
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+  }
+  .btn-primary:hover { background: #e03d20; transform: translateY(-1px); }
+  .btn-green {
+    background: var(--accent2);
+    color: var(--ink);
+    font-weight: 600;
+  }
+  .btn-green:hover { background: #00b082; }
+  .btn-dark {
+    background: var(--ink);
+    color: #fff;
+  }
+  .btn-outline {
+    background: transparent;
+    border: 1.5px solid var(--border);
+    color: var(--ink);
+  }
+  .btn-outline:hover { border-color: var(--ink); }
+  .btn-sm { padding: 7px 16px; font-size: 0.82rem; }
+  .btn-lg { padding: 14px 32px; font-size: 1rem; }
+
+  .land-hero {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 80px 24px 60px;
+  }
+
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255,77,46,0.12);
+    border: 1px solid rgba(255,77,46,0.25);
+    color: var(--accent);
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    margin-bottom: 28px;
+  }
+
+  .land-hero h1 {
+    font-size: clamp(2.5rem, 6vw, 4.2rem);
+    font-weight: 800;
+    line-height: 1.1;
+    max-width: 820px;
+    margin-bottom: 20px;
+  }
+
+  .land-hero h1 span { color: var(--accent); }
+
+  .land-hero p {
+    font-size: 1.1rem;
+    color: var(--sidebar-text);
+    max-width: 520px;
+    line-height: 1.7;
+    margin-bottom: 36px;
+  }
+
+  .hero-actions { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; }
+
+  .hero-stats {
+    display: flex;
+    gap: 48px;
+    margin-top: 64px;
+    padding-top: 40px;
+    border-top: 1px solid rgba(255,255,255,0.07);
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .stat { text-align: center; }
+  .stat-num {
+    font-family: 'Syne', sans-serif;
+    font-size: 2rem;
+    font-weight: 800;
+    color: #fff;
+  }
+  .stat-label { font-size: 0.8rem; color: var(--muted); margin-top: 2px; }
+
+  .land-features {
+    background: var(--paper);
+    padding: 80px 48px;
+  }
+
+  .section-header { text-align: center; margin-bottom: 52px; }
+  .section-header h2 { font-size: 2.2rem; font-weight: 800; color: var(--ink); }
+  .section-header p { color: var(--muted); margin-top: 10px; font-size: 1rem; }
+
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .feature-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 28px;
+    transition: transform .2s, box-shadow .2s;
+  }
+  .feature-card:hover { transform: translateY(-3px); box-shadow: var(--shadow); }
+
+  .feature-icon {
+    width: 44px; height: 44px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.3rem;
+    margin-bottom: 16px;
+  }
+  .fi-red { background: rgba(255,77,46,0.1); }
+  .fi-green { background: rgba(0,200,150,0.1); }
+  .fi-blue { background: rgba(60,130,255,0.1); }
+  .fi-purple { background: rgba(140,80,255,0.1); }
+  .fi-orange { background: rgba(255,160,40,0.1); }
+  .fi-teal { background: rgba(0,180,180,0.1); }
+
+  .feature-card h3 { font-size: 1rem; font-weight: 700; margin-bottom: 8px; }
+  .feature-card p { font-size: 0.87rem; color: var(--muted); line-height: 1.6; }
+
+  .pricing-section {
+    background: var(--ink);
+    padding: 80px 48px;
+    color: #fff;
+  }
+  .pricing-section .section-header h2 { color: #fff; }
+  .pricing-section .section-header p { color: var(--sidebar-text); }
+
+  .pricing-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 20px;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .price-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: var(--radius);
+    padding: 32px;
+    position: relative;
+  }
+  .price-card.popular {
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+  .popular-badge {
+    position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
+    background: #fff; color: var(--accent);
+    font-size: 0.72rem; font-weight: 700; padding: 4px 12px; border-radius: 999px;
+    font-family: 'Syne', sans-serif;
+  }
+  .price-plan { font-size: 0.85rem; font-weight: 600; opacity: .7; margin-bottom: 8px; }
+  .price-amount { font-family: 'Syne', sans-serif; font-size: 2.5rem; font-weight: 800; }
+  .price-amount span { font-size: 1rem; font-weight: 400; opacity: .6; }
+  .price-desc { font-size: 0.83rem; opacity: .65; margin: 8px 0 20px; }
+  .price-features { list-style: none; display: flex; flex-direction: column; gap: 8px; margin-bottom: 28px; }
+  .price-features li { font-size: 0.85rem; display: flex; align-items: center; gap: 8px; }
+  .price-features li::before { content: "✓"; font-weight: 700; }
+
+  /* ── AUTH ─────────────────────────────────── */
+  #auth-screen {
+    display: none;
+    min-height: 100vh;
+    background: var(--ink);
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+
+  .auth-box {
+    background: #16161f;
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 16px;
+    padding: 44px;
+    width: 100%;
+    max-width: 420px;
+  }
+
+  .auth-box .logo { margin-bottom: 28px; }
+
+  .auth-tabs { display: flex; gap: 0; margin-bottom: 28px; }
+  .auth-tab {
+    flex: 1; padding: 10px; text-align: center;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    color: var(--sidebar-text); cursor: pointer;
+    font-family: 'DM Sans', sans-serif; font-size: 0.9rem;
+    transition: all .2s;
+  }
+  .auth-tab:first-child { border-radius: 8px 0 0 8px; }
+  .auth-tab:last-child { border-radius: 0 8px 8px 0; }
+  .auth-tab.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+  .form-group { margin-bottom: 16px; }
+  .form-group label { display: block; font-size: 0.82rem; color: var(--sidebar-text); margin-bottom: 6px; }
+  .form-group input, .form-group select, .form-group textarea {
+    width: 100%;
+    padding: 11px 14px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 8px;
+    color: #fff;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    transition: border-color .2s;
+  }
+  .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+  .form-group input::placeholder { color: rgba(255,255,255,0.2); }
+
+  /* ── APP SHELL ─────────────────────────────────── */
+  #app {
+    display: none;
+    min-height: 100vh;
+    background: var(--paper);
+  }
+
+  .app-layout {
+    display: flex;
+    min-height: 100vh;
+  }
+
+  /* SIDEBAR */
+  .sidebar {
+    width: 230px;
+    min-width: 230px;
+    background: var(--sidebar);
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+  }
+
+  .sidebar-top {
+    padding: 22px 20px 16px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+
+  .sidebar-logo {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: #fff;
+  }
+
+  .sidebar-nav { padding: 16px 10px; flex: 1; }
+
+  .nav-section-label {
+    font-size: 0.67rem;
+    font-weight: 600;
+    color: rgba(255,255,255,0.25);
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    padding: 0 10px;
+    margin: 16px 0 6px;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    color: var(--sidebar-text);
+    cursor: pointer;
+    font-size: 0.88rem;
+    transition: all .15s;
+    margin-bottom: 2px;
+  }
+  .nav-item:hover { background: rgba(255,255,255,0.05); color: #fff; }
+  .nav-item.active { background: rgba(255,77,46,0.15); color: var(--accent); }
+  .nav-icon { font-size: 1rem; width: 20px; text-align: center; }
+  .nav-badge {
+    margin-left: auto;
+    background: var(--accent);
+    color: #fff;
+    font-size: 0.65rem;
+    padding: 2px 7px;
+    border-radius: 999px;
+    font-weight: 700;
+  }
+
+  .sidebar-user {
+    padding: 14px 16px;
+    border-top: 1px solid rgba(255,255,255,0.06);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+  }
+  .user-avatar {
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    background: var(--accent);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Syne', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #fff;
+  }
+  .user-info { flex: 1; }
+  .user-name { font-size: 0.82rem; color: #fff; font-weight: 500; }
+  .user-plan { font-size: 0.7rem; color: var(--sidebar-text); }
+
+  /* MAIN */
+  .main-content {
+    flex: 1;
+    overflow-y: auto;
+    min-height: 100vh;
+  }
+
+  .topbar {
+    background: var(--card);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 28px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+
+  .topbar-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.15rem;
+    font-weight: 700;
+  }
+
+  .topbar-right { margin-left: auto; display: flex; gap: 10px; align-items: center; }
+
+  .page { display: none; padding: 28px; }
+  .page.active { display: block; }
+
+  /* DASHBOARD */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+
+  .stat-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 22px;
+  }
+  .stat-card-label { font-size: 0.78rem; color: var(--muted); margin-bottom: 8px; }
+  .stat-card-value {
+    font-family: 'Syne', sans-serif;
+    font-size: 2rem;
+    font-weight: 800;
+    line-height: 1;
+  }
+  .stat-card-change {
+    font-size: 0.75rem;
+    margin-top: 4px;
+    color: var(--accent2);
+  }
+  .stat-card-change.down { color: var(--accent); }
+
+  .dashboard-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+
+  @media(max-width: 768px) {
+    .dashboard-grid { grid-template-columns: 1fr; }
+    .sidebar { display: none; }
+  }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 22px;
+  }
+  .card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 18px;
+  }
+  .card-title { font-family: 'Syne', sans-serif; font-size: 0.95rem; font-weight: 700; }
+
+  /* QR LIST */
+  .qr-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 16px;
+  }
+
+  .qr-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    cursor: pointer;
+    transition: all .2s;
+    position: relative;
+  }
+  .qr-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.08); transform: translateY(-2px); }
+
+  .qr-preview {
+    width: 80px; height: 80px;
+    margin: 0 auto 14px;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #fff;
+    display: flex; align-items: center; justify-content: center;
+    border: 1px solid var(--border);
+  }
+  .qr-preview img { width: 100%; height: 100%; object-fit: contain; }
+
+  .qr-card-name {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .qr-card-type {
+    text-align: center;
+    font-size: 0.75rem;
+    color: var(--muted);
+    margin-bottom: 12px;
+  }
+  .qr-card-stats {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    font-size: 0.78rem;
+    color: var(--muted);
+  }
+  .qr-card-stats span { display: flex; align-items: center; gap: 4px; }
+  .qr-status {
+    position: absolute; top: 12px; right: 12px;
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--accent2);
+  }
+  .qr-status.inactive { background: var(--muted); }
+
+  /* CREATOR */
+  .creator-layout {
+    display: grid;
+    grid-template-columns: 340px 1fr;
+    gap: 20px;
+  }
+
+  @media(max-width: 900px) {
+    .creator-layout { grid-template-columns: 1fr; }
+  }
+
+  .creator-panel {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+
+  .creator-tabs {
+    display: flex;
+    border-bottom: 1px solid var(--border);
+    overflow-x: auto;
+  }
+  .creator-tab {
+    padding: 12px 16px;
+    font-size: 0.82rem;
+    cursor: pointer;
+    color: var(--muted);
+    white-space: nowrap;
+    border-bottom: 2px solid transparent;
+    transition: all .15s;
+  }
+  .creator-tab.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+    font-weight: 500;
+  }
+  .creator-tab:hover { color: var(--ink); }
+
+  .creator-body { padding: 20px; }
+
+  .qr-types-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+  .qr-type-btn {
+    padding: 12px 8px;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    background: none;
+    cursor: pointer;
+    text-align: center;
+    transition: all .15s;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .qr-type-btn:hover { border-color: var(--accent); background: rgba(255,77,46,0.03); }
+  .qr-type-btn.active { border-color: var(--accent); background: rgba(255,77,46,0.06); }
+  .qr-type-icon { font-size: 1.3rem; margin-bottom: 4px; }
+  .qr-type-label { font-size: 0.72rem; color: var(--muted); }
+  .qr-type-btn.active .qr-type-label { color: var(--accent); }
+
+  /* QR PREVIEW PANEL */
+  .qr-preview-panel {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 28px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .qr-output-box {
+    width: 200px;
+    height: 200px;
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #fff;
+    margin-bottom: 20px;
+    overflow: hidden;
+  }
+
+  #qr-output { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
+  #qr-output canvas, #qr-output img { max-width: 100%; max-height: 100%; }
+
+  .color-row { display: flex; gap: 12px; margin-bottom: 16px; align-items: center; }
+  .color-input-group { flex: 1; }
+  .color-input-group label { font-size: 0.75rem; color: var(--muted); margin-bottom: 4px; display: block; }
+  .color-input-group input[type=color] {
+    width: 100%; height: 36px; border-radius: 6px; border: 1px solid var(--border);
+    cursor: pointer; padding: 2px 4px;
+  }
+
+  .shape-grid {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+  }
+  .shape-btn {
+    width: 38px; height: 38px;
+    border: 1.5px solid var(--border);
+    border-radius: 6px;
+    background: none;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1rem;
+    transition: all .15s;
+  }
+  .shape-btn.active { border-color: var(--accent); background: rgba(255,77,46,0.06); }
+  .shape-btn:hover { border-color: var(--ink); }
+
+  /* ANALYTICS */
+  .analytics-header {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .chart-placeholder {
+    background: linear-gradient(135deg, #f8f7f4, #f0efeb);
+    border-radius: 10px;
+    height: 200px;
+    display: flex;
+    align-items: flex-end;
+    padding: 16px;
+    gap: 6px;
+    overflow: hidden;
+  }
+
+  .bar {
+    flex: 1;
+    background: var(--accent);
+    border-radius: 4px 4px 0 0;
+    opacity: 0.7;
+    animation: barGrow .5s ease forwards;
+    transform-origin: bottom;
+  }
+
+  @keyframes barGrow {
+    from { transform: scaleY(0); opacity: 0; }
+    to { transform: scaleY(1); opacity: 0.7; }
+  }
+
+  .analytics-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 20px;
+  }
+
+  .pie-chart {
+    width: 120px; height: 120px;
+    border-radius: 50%;
+    background: conic-gradient(
+      var(--accent) 0deg 130deg,
+      var(--accent2) 130deg 230deg,
+      #3c82ff 230deg 290deg,
+      #ffb838 290deg 360deg
+    );
+    margin: 0 auto 12px;
+    position: relative;
+  }
+  .pie-center {
+    position: absolute;
+    inset: 20px;
+    border-radius: 50%;
+    background: var(--card);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Syne', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 700;
+  }
+
+  /* TABLE */
+  .data-table { width: 100%; border-collapse: collapse; font-size: 0.87rem; }
+  .data-table th {
+    text-align: left;
+    padding: 10px 14px;
+    font-weight: 600;
+    color: var(--muted);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    border-bottom: 1px solid var(--border);
+  }
+  .data-table td {
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+  }
+  .data-table tr:last-child td { border-bottom: none; }
+  .data-table tr:hover td { background: rgba(0,0,0,0.01); }
+
+  .pill {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 600;
+  }
+  .pill-green { background: rgba(0,200,150,0.1); color: var(--accent2); }
+  .pill-red { background: rgba(255,77,46,0.1); color: var(--accent); }
+  .pill-blue { background: rgba(60,130,255,0.1); color: #3c82ff; }
+  .pill-gray { background: rgba(0,0,0,0.06); color: var(--muted); }
+
+  /* MODAL */
+  .modal-overlay {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--card);
+    border-radius: 14px;
+    padding: 32px;
+    width: 100%;
+    max-width: 480px;
+    position: relative;
+    animation: modalIn .2s ease;
+  }
+  @keyframes modalIn {
+    from { transform: scale(.95); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+  .modal h3 { font-size: 1.1rem; margin-bottom: 20px; }
+  .modal-close {
+    position: absolute; top: 16px; right: 16px;
+    background: none; border: none; font-size: 1.3rem; cursor: pointer; color: var(--muted);
+  }
+  .modal .form-group label { color: var(--ink); }
+  .modal .form-group input, .modal .form-group select, .modal .form-group textarea {
+    background: var(--paper);
+    border: 1.5px solid var(--border);
+    color: var(--ink);
+  }
+  .modal .form-group input:focus, .modal .form-group select:focus {
+    border-color: var(--accent);
+  }
+
+  /* MISC */
+  .flex { display: flex; }
+  .flex-center { display: flex; align-items: center; }
+  .gap-8 { gap: 8px; }
+  .gap-12 { gap: 12px; }
+  .mt-16 { margin-top: 16px; }
+  .mt-20 { margin-top: 20px; }
+  .mb-16 { margin-bottom: 16px; }
+  .text-muted { color: var(--muted); font-size: 0.85rem; }
+  .text-sm { font-size: 0.82rem; }
+  .fw-700 { font-weight: 700; }
+  .divider { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+
+  .search-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--paper);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-size: 0.87rem;
+    color: var(--muted);
+    cursor: text;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--muted);
+  }
+  .empty-state .icon { font-size: 3rem; margin-bottom: 12px; }
+  .empty-state p { font-size: 0.9rem; margin-bottom: 16px; }
+
+  .toast {
+    position: fixed;
+    bottom: 24px; right: 24px;
+    background: var(--ink);
+    color: #fff;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-size: 0.87rem;
+    z-index: 2000;
+    transform: translateY(100px);
+    opacity: 0;
+    transition: all .3s;
+  }
+  .toast.show { transform: translateY(0); opacity: 1; }
+
+  .progress-bar {
+    height: 6px;
+    background: var(--border);
+    border-radius: 3px;
+    overflow: hidden;
+    margin-top: 4px;
+  }
+  .progress-fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 3px;
+    transition: width .5s;
+  }
+
+  .section-divider {
+    height: 1px;
+    background: var(--border);
+    margin: 20px 0;
+  }
+
+  select { appearance: none; }
+
+  .link-row {
+    display: flex; gap: 8px; align-items: flex-end;
+  }
+  .link-row .form-group { flex: 1; margin: 0; }
+
+  /* Animations */
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .page.active { animation: fadeIn .25s ease; }
+
+  .plan-usage {
+    background: var(--paper);
+    border-radius: 10px;
+    padding: 16px;
+    margin-bottom: 16px;
+  }
+  .plan-usage-row {
+    display: flex; justify-content: space-between; margin-bottom: 4px; font-size: 0.82rem;
+  }
+
+  #qr-logo-preview {
+    width: 40px; height: 40px; border-radius: 8px; border: 1px solid var(--border);
+    object-fit: contain; display: none;
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════ LANDING ═══════════════════════════════════ -->
+<div id="landing">
+  <nav class="land-nav">
+    <div class="logo">QRFlex<span class="logo-dot">.</span></div>
+    <div class="land-nav-links">
+      <a href="#">Características</a>
+      <a href="#">Precios</a>
+      <a href="#">API</a>
+      <a href="#">Soporte</a>
+    </div>
+    <div class="land-nav-cta">
+      <button class="btn btn-ghost" onclick="showAuth('login')">Iniciar sesión</button>
+      <button class="btn btn-primary" onclick="showAuth('register')">Empezar gratis</button>
+    </div>
+  </nav>
+
+  <div class="land-hero">
+    <div class="hero-badge">✦ QR Dinámicos — Edita sin reimprimir</div>
+    <h1>Códigos QR que <span>trabajan</span> para tu negocio</h1>
+    <p>Crea, personaliza y rastrea QR codes dinámicos. Cambia el destino de tus QRs en cualquier momento sin necesidad de reimprimir.</p>
+    <div class="hero-actions">
+      <button class="btn btn-primary btn-lg" onclick="showAuth('register')">Comenzar gratis — 14 días</button>
+      <button class="btn btn-ghost btn-lg" onclick="showAuth('login')">Ver demo</button>
+    </div>
+    <div class="hero-stats">
+      <div class="stat"><div class="stat-num">19</div><div class="stat-label">Tipos de QR</div></div>
+      <div class="stat"><div class="stat-num">∞</div><div class="stat-label">Escaneos rastreados</div></div>
+      <div class="stat"><div class="stat-num">4.8★</div><div class="stat-label">Calificación usuarios</div></div>
+      <div class="stat"><div class="stat-num">10k+</div><div class="stat-label">Empresas activas</div></div>
+    </div>
+  </div>
+
+  <div class="land-features">
+    <div class="section-header">
+      <h2>Todo lo que necesitas</h2>
+      <p>Funciones potentes para crear, gestionar y analizar QR codes sin límites</p>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon fi-red">🔄</div>
+        <h3>QR Dinámicos</h3>
+        <p>Actualiza el destino de tus QR en cualquier momento. No reimprimas, solo edita.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon fi-green">📊</div>
+        <h3>Analytics Avanzado</h3>
+        <p>Rastreo por ubicación, dispositivo, hora y comportamiento. Insights en tiempo real.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon fi-blue">🎨</div>
+        <h3>Diseño Personalizable</h3>
+        <p>Colores, logos, formas de puntos y estilos únicos. QR que reflejan tu marca.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon fi-purple">🗂️</div>
+        <h3>19 Tipos de QR</h3>
+        <p>URL, vCard, WiFi, PDF, menú, video, apps, eventos y mucho más.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon fi-orange">⚡</div>
+        <h3>Creación Masiva</h3>
+        <p>Genera cientos de QR codes en segundos con nuestra herramienta bulk.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon fi-teal">🔒</div>
+        <h3>Seguridad AES-256</h3>
+        <p>Cifrado bancario, GDPR compliant y backups diarios. Tus datos, protegidos.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="pricing-section">
+    <div class="section-header">
+      <h2>Planes simples, sin sorpresas</h2>
+      <p>Elige el plan que mejor se adapte a tu negocio</p>
+    </div>
+    <div class="pricing-grid">
+      <div class="price-card">
+        <div class="price-plan">STARTER</div>
+        <div class="price-amount">$29<span>/mes</span></div>
+        <div class="price-desc">Para freelancers y proyectos pequeños</div>
+        <ul class="price-features">
+          <li>25 QR dinámicos</li>
+          <li>5,000 escaneos/mes</li>
+          <li>Analytics básico</li>
+          <li>Exportar PNG/SVG</li>
+        </ul>
+        <button class="btn btn-ghost" style="width:100%" onclick="showAuth('register')">Empezar</button>
+      </div>
+      <div class="price-card popular">
+        <div class="popular-badge">MÁS POPULAR</div>
+        <div class="price-plan">GROWTH</div>
+        <div class="price-amount">$79<span>/mes</span></div>
+        <div class="price-desc">Para empresas en crecimiento</div>
+        <ul class="price-features">
+          <li>200 QR dinámicos</li>
+          <li>Escaneos ilimitados</li>
+          <li>Analytics avanzado</li>
+          <li>Dominio personalizado</li>
+          <li>Integración Google Analytics</li>
+        </ul>
+        <button class="btn btn-dark" style="width:100%" onclick="showAuth('register')">Empezar</button>
+      </div>
+      <div class="price-card">
+        <div class="price-plan">ENTERPRISE</div>
+        <div class="price-amount">$499<span>/mes</span></div>
+        <div class="price-desc">Para grandes organizaciones</div>
+        <ul class="price-features">
+          <li>QR ilimitados</li>
+          <li>Dominios ilimitados</li>
+          <li>Equipos ilimitados</li>
+          <li>API acceso completo</li>
+          <li>Soporte prioritario</li>
+        </ul>
+        <button class="btn btn-ghost" style="width:100%" onclick="showAuth('register')">Contactar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════ AUTH ═══════════════════════════════════ -->
+<div id="auth-screen">
+  <div class="auth-box">
+    <div class="logo">QRFlex<span class="logo-dot">.</span></div>
+    <div class="auth-tabs">
+      <div class="auth-tab active" id="tab-login" onclick="switchAuthTab('login')">Iniciar sesión</div>
+      <div class="auth-tab" id="tab-register" onclick="switchAuthTab('register')">Registrarse</div>
+    </div>
+
+    <div id="form-login">
+      <div class="form-group">
+        <label>Correo electrónico</label>
+        <input type="email" id="login-email" placeholder="tu@email.com" value="demo@qrflex.com">
+      </div>
+      <div class="form-group">
+        <label>Contraseña</label>
+        <input type="password" id="login-pass" placeholder="••••••••" value="demo1234">
+      </div>
+      <button class="btn btn-primary" style="width:100%;margin-top:8px" onclick="doLogin()">Entrar</button>
+      <p style="text-align:center;margin-top:12px;font-size:0.82rem;color:#888">
+        <a href="#" style="color:var(--accent)">¿Olvidaste tu contraseña?</a>
+      </p>
+    </div>
+
+    <div id="form-register" style="display:none">
+      <div class="form-group">
+        <label>Nombre completo</label>
+        <input type="text" placeholder="Tu nombre">
+      </div>
+      <div class="form-group">
+        <label>Correo electrónico</label>
+        <input type="email" placeholder="tu@email.com">
+      </div>
+      <div class="form-group">
+        <label>Contraseña</label>
+        <input type="password" placeholder="Mínimo 8 caracteres">
+      </div>
+      <button class="btn btn-primary" style="width:100%;margin-top:8px" onclick="doLogin()">Crear cuenta gratis</button>
+      <p style="text-align:center;margin-top:12px;font-size:0.78rem;color:#666">
+        14 días gratis · Sin tarjeta de crédito
+      </p>
+    </div>
+
+    <div style="margin-top:20px;text-align:center">
+      <button class="btn btn-ghost btn-sm" onclick="goBack()">← Volver al inicio</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════ APP ═══════════════════════════════════ -->
+<div id="app">
+  <div class="app-layout">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-top">
+        <div class="sidebar-logo">QRFlex<span style="color:var(--accent)">.</span></div>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-section-label">Principal</div>
+        <div class="nav-item active" onclick="navTo('dashboard', this)">
+          <span class="nav-icon">📊</span> Dashboard
+        </div>
+        <div class="nav-item" onclick="navTo('my-qrs', this)">
+          <span class="nav-icon">⬛</span> Mis QR Codes
+          <span class="nav-badge" id="qr-count-badge">3</span>
+        </div>
+        <div class="nav-item" onclick="navTo('creator', this)">
+          <span class="nav-icon">✨</span> Crear QR
+        </div>
+        <div class="nav-section-label">Análisis</div>
+        <div class="nav-item" onclick="navTo('analytics', this)">
+          <span class="nav-icon">📈</span> Analytics
+        </div>
+        <div class="nav-item" onclick="navTo('scans', this)">
+          <span class="nav-icon">👁</span> Escaneos
+        </div>
+        <div class="nav-section-label">Gestión</div>
+        <div class="nav-item" onclick="navTo('links', this)">
+          <span class="nav-icon">🔗</span> Links Dinámicos
+        </div>
+        <div class="nav-item" onclick="navTo('folders', this)">
+          <span class="nav-icon">📁</span> Carpetas
+        </div>
+        <div class="nav-item" onclick="navTo('team', this)">
+          <span class="nav-icon">👥</span> Equipo
+        </div>
+        <div class="nav-section-label">Cuenta</div>
+        <div class="nav-item" onclick="navTo('settings', this)">
+          <span class="nav-icon">⚙️</span> Configuración
+        </div>
+        <div class="nav-item" onclick="navTo('billing', this)">
+          <span class="nav-icon">💳</span> Facturación
+        </div>
+      </nav>
+      <div class="sidebar-user">
+        <div class="user-avatar" id="user-avatar-sidebar">DU</div>
+        <div class="user-info">
+          <div class="user-name" id="user-name-sidebar">Demo User</div>
+          <div class="user-plan">Plan Growth 🟢</div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main-content">
+      <div class="topbar">
+        <span class="topbar-title" id="topbar-title">Dashboard</span>
+        <div class="topbar-right">
+          <div class="search-bar" style="min-width:200px">🔍 Buscar QR codes...</div>
+          <button class="btn btn-primary btn-sm" onclick="navTo('creator', document.querySelector('[onclick*=creator]'))">+ Nuevo QR</button>
+        </div>
+      </div>
+
+      <!-- ──── DASHBOARD ──── -->
+      <div id="page-dashboard" class="page active">
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-card-label">Total QR Codes</div>
+            <div class="stat-card-value">3</div>
+            <div class="stat-card-change">↑ 2 este mes</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-label">Escaneos hoy</div>
+            <div class="stat-card-value">247</div>
+            <div class="stat-card-change">↑ +18% vs ayer</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-label">Total escaneos</div>
+            <div class="stat-card-value">12,480</div>
+            <div class="stat-card-change">↑ +34% este mes</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-label">Tasa de conversión</div>
+            <div class="stat-card-value">68%</div>
+            <div class="stat-card-change down">↓ -2% vs ayer</div>
+          </div>
+        </div>
+
+        <div class="dashboard-grid">
+          <div class="card" style="grid-column: 1/-1">
+            <div class="card-header">
+              <span class="card-title">Escaneos últimos 7 días</span>
+              <button class="btn btn-outline btn-sm" onclick="navTo('analytics', null)">Ver todo →</button>
+            </div>
+            <div class="chart-placeholder">
+              <div class="bar" style="height:45%;animation-delay:.05s"></div>
+              <div class="bar" style="height:70%;animation-delay:.1s"></div>
+              <div class="bar" style="height:55%;animation-delay:.15s"></div>
+              <div class="bar" style="height:80%;animation-delay:.2s"></div>
+              <div class="bar" style="height:65%;animation-delay:.25s"></div>
+              <div class="bar" style="height:90%;animation-delay:.3s"></div>
+              <div class="bar" style="height:75%;animation-delay:.35s;opacity:0.4"></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header"><span class="card-title">QR más activos</span></div>
+            <table class="data-table">
+              <thead><tr><th>Nombre</th><th>Escaneos</th><th>Estado</th></tr></thead>
+              <tbody>
+                <tr><td>Menu Restaurante</td><td>5,420</td><td><span class="pill pill-green">Activo</span></td></tr>
+                <tr><td>WiFi Oficina</td><td>3,890</td><td><span class="pill pill-green">Activo</span></td></tr>
+                <tr><td>Tarjeta Digital</td><td>3,170</td><td><span class="pill pill-green">Activo</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="card">
+            <div class="card-header"><span class="card-title">Dispositivos</span></div>
+            <div class="pie-chart"><div class="pie-center">12k</div></div>
+            <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px">
+              <div style="display:flex;align-items:center;justify-content:space-between;font-size:0.82rem">
+                <span style="display:flex;align-items:center;gap:6px"><span style="width:10px;height:10px;border-radius:2px;background:var(--accent);display:inline-block"></span>iOS</span>
+                <span class="fw-700">36%</span>
+              </div>
+              <div style="display:flex;align-items:center;justify-content:space-between;font-size:0.82rem">
+                <span style="display:flex;align-items:center;gap:6px"><span style="width:10px;height:10px;border-radius:2px;background:var(--accent2);display:inline-block"></span>Android</span>
+                <span class="fw-700">28%</span>
+              </div>
+              <div style="display:flex;align-items:center;justify-content:space-between;font-size:0.82rem">
+                <span style="display:flex;align-items:center;gap:6px"><span style="width:10px;height:10px;border-radius:2px;background:#3c82ff;display:inline-block"></span>Desktop</span>
+                <span class="fw-700">20%</span>
+              </div>
+              <div style="display:flex;align-items:center;justify-content:space-between;font-size:0.82rem">
+                <span style="display:flex;align-items:center;gap:6px"><span style="width:10px;height:10px;border-radius:2px;background:#ffb838;display:inline-block"></span>Otros</span>
+                <span class="fw-700">16%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ──── MIS QR CODES ──── -->
+      <div id="page-my-qrs" class="page">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px">
+          <div>
+            <h2 style="font-size:1.2rem">Mis QR Codes</h2>
+            <p class="text-muted">3 códigos activos</p>
+          </div>
+          <div style="display:flex;gap:10px">
+            <button class="btn btn-outline btn-sm">📥 Importar</button>
+            <button class="btn btn-primary btn-sm" onclick="navTo('creator', null)">+ Crear QR</button>
+          </div>
+        </div>
+        <div class="qr-grid" id="qr-list-grid">
+          <!-- populated by JS -->
+        </div>
+      </div>
+
+      <!-- ──── CREATOR ──── -->
+      <div id="page-creator" class="page">
+        <div style="margin-bottom:20px">
+          <h2 style="font-size:1.2rem">Crear nuevo QR Code</h2>
+          <p class="text-muted">Personaliza y genera tu código QR dinámico</p>
+        </div>
+        <div class="creator-layout">
+          <div>
+            <!-- Tipo -->
+            <div class="creator-panel" style="margin-bottom:16px">
+              <div class="creator-tabs">
+                <div class="creator-tab active">1. Tipo</div>
+                <div class="creator-tab">2. Contenido</div>
+                <div class="creator-tab">3. Diseño</div>
+              </div>
+              <div class="creator-body">
+                <p style="font-size:0.8rem;color:var(--muted);margin-bottom:14px">Selecciona el tipo de QR</p>
+                <div class="qr-types-grid">
+                  <button class="qr-type-btn active" onclick="selectType(this,'url')"><div class="qr-type-icon">🌐</div><div class="qr-type-label">URL</div></button>
+                  <button class="qr-type-btn" onclick="selectType(this,'vcard')"><div class="qr-type-icon">👤</div><div class="qr-type-label">vCard</div></button>
+                  <button class="qr-type-btn" onclick="selectType(this,'wifi')"><div class="qr-type-icon">📶</div><div class="qr-type-label">WiFi</div></button>
+                  <button class="qr-type-btn" onclick="selectType(this,'pdf')"><div class="qr-type-icon">📄</div><div class="qr-type-label">PDF</div></button>
+                  <button class="qr-type-btn" onclick="selectType(this,'menu')"><div class="qr-type-icon">🍽</div><div class="qr-type-label">Menú</div></button>
+                  <button class="qr-type-btn" onclick="selectType(this,'video')"><div class="qr-type-icon">🎬</div><div class="qr-type-label">Video</div></button>
+                  <button class="qr-type-btn" onclick="selectType(this,'social')"><div class="qr-type-icon">📱</div><div class="qr-type-label">Social</div></button>
+                  <button class="qr-type-btn" onclick="selectType(this,'event')"><div class="qr-type-icon">📅</div><div class="qr-type-label">Evento</div></button>
+                  <button class="qr-type-btn" onclick="selectType(this,'app')"><div class="qr-type-icon">📲</div><div class="qr-type-label">App</div></button>
+                </div>
+
+                <!-- Contenido según tipo -->
+                <div id="content-url">
+                  <div class="form-group">
+                    <label>Nombre del QR</label>
+                    <input type="text" id="qr-name-input" placeholder="Ej: Landing Page Campaña" oninput="updatePreview()">
+                  </div>
+                  <div class="form-group">
+                    <label>URL de destino</label>
+                    <input type="url" id="qr-url-input" placeholder="https://tudominio.com" value="https://ejemplo.com" oninput="updatePreview()">
+                  </div>
+                  <div class="form-group">
+                    <label>Carpeta</label>
+                    <select>
+                      <option>Sin carpeta</option>
+                      <option>Marketing</option>
+                      <option>Restaurante</option>
+                    </select>
+                  </div>
+                </div>
+
+                <!-- Diseño -->
+                <div class="section-divider"></div>
+                <p style="font-size:0.8rem;color:var(--muted);margin-bottom:12px">🎨 Personalización</p>
+
+                <div class="color-row">
+                  <div class="color-input-group">
+                    <label>Color QR</label>
+                    <input type="color" id="qr-fg-color" value="#0a0a0f" oninput="updatePreview()">
+                  </div>
+                  <div class="color-input-group">
+                    <label>Fondo</label>
+                    <input type="color" id="qr-bg-color" value="#ffffff" oninput="updatePreview()">
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label>Subir logo</label>
+                  <div style="display:flex;align-items:center;gap:10px">
+                    <input type="file" id="qr-logo-input" accept="image/*" style="font-size:0.8rem;flex:1" onchange="handleLogoUpload(event)">
+                    <img id="qr-logo-preview" src="" alt="logo">
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label>Tamaño de error correction</label>
+                  <select id="qr-ecl" onchange="updatePreview()">
+                    <option value="L">L — Baja (7%)</option>
+                    <option value="M" selected>M — Media (15%)</option>
+                    <option value="Q">Q — Alta (25%)</option>
+                    <option value="H">H — Máxima (30%)</option>
+                  </select>
+                </div>
+
+                <div style="display:flex;gap:8px;margin-top:8px">
+                  <button class="btn btn-primary" style="flex:1" onclick="saveQR()">💾 Guardar QR</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- PREVIEW PANEL -->
+          <div class="qr-preview-panel">
+            <h3 style="font-size:0.95rem;margin-bottom:20px;align-self:flex-start">Vista previa</h3>
+            <div class="qr-output-box">
+              <div id="qr-output"></div>
+            </div>
+            <p style="font-size:0.78rem;color:var(--muted);text-align:center;margin-bottom:16px">
+              QR dinámico — puedes editar el destino en cualquier momento
+            </p>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center">
+              <button class="btn btn-outline btn-sm" onclick="downloadQR('png')">⬇ PNG</button>
+              <button class="btn btn-outline btn-sm" onclick="downloadQR('svg')">⬇ SVG</button>
+              <button class="btn btn-outline btn-sm" onclick="downloadQR('jpg')">⬇ JPG</button>
+            </div>
+            <div class="section-divider"></div>
+            <div style="width:100%">
+              <p style="font-size:0.78rem;color:var(--muted);margin-bottom:8px">Link dinámico asignado</p>
+              <div style="background:var(--paper);border:1px solid var(--border);border-radius:8px;padding:10px 14px;font-size:0.82rem;font-family:monospace;word-break:break-all">
+                qrflex.link/r/<span id="short-code">abc123</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ──── ANALYTICS ──── -->
+      <div id="page-analytics" class="page">
+        <div style="margin-bottom:20px">
+          <h2 style="font-size:1.2rem">Analytics</h2>
+          <p class="text-muted">Analiza el rendimiento de tus QR codes</p>
+        </div>
+        <div class="analytics-header">
+          <select class="btn btn-outline btn-sm" style="padding:7px 14px">
+            <option>Últimos 7 días</option>
+            <option>Últimos 30 días</option>
+            <option>Últimos 90 días</option>
+            <option>Este año</option>
+          </select>
+          <select class="btn btn-outline btn-sm" style="padding:7px 14px">
+            <option>Todos los QR</option>
+            <option>Menu Restaurante</option>
+            <option>WiFi Oficina</option>
+            <option>Tarjeta Digital</option>
+          </select>
+          <button class="btn btn-outline btn-sm">📤 Exportar CSV</button>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-card"><div class="stat-card-label">Escaneos totales</div><div class="stat-card-value">12,480</div><div class="stat-card-change">↑ +34%</div></div>
+          <div class="stat-card"><div class="stat-card-label">Escaneos únicos</div><div class="stat-card-value">8,920</div><div class="stat-card-change">↑ +28%</div></div>
+          <div class="stat-card"><div class="stat-card-label">Países alcanzados</div><div class="stat-card-value">14</div><div class="stat-card-change">↑ +3 nuevos</div></div>
+          <div class="stat-card"><div class="stat-card-label">Pico diario</div><div class="stat-card-value">812</div><div class="stat-card-change">El Martes</div></div>
+        </div>
+
+        <div class="card mt-20">
+          <div class="card-header"><span class="card-title">Escaneos por día</span></div>
+          <div class="chart-placeholder">
+            <div class="bar" style="height:50%"></div>
+            <div class="bar" style="height:75%"></div>
+            <div class="bar" style="height:40%"></div>
+            <div class="bar" style="height:90%"></div>
+            <div class="bar" style="height:65%"></div>
+            <div class="bar" style="height:85%"></div>
+            <div class="bar" style="height:55%"></div>
+            <div class="bar" style="height:72%"></div>
+            <div class="bar" style="height:48%"></div>
+            <div class="bar" style="height:80%"></div>
+            <div class="bar" style="height:60%"></div>
+            <div class="bar" style="height:95%"></div>
+            <div class="bar" style="height:70%"></div>
+            <div class="bar" style="height:30%;opacity:.3"></div>
+          </div>
+        </div>
+
+        <div class="analytics-grid mt-20">
+          <div class="card">
+            <div class="card-header"><span class="card-title">Por dispositivo</span></div>
+            <table class="data-table">
+              <tbody>
+                <tr><td>📱 iOS</td><td><div class="progress-bar"><div class="progress-fill" style="width:36%;background:#ff4d2e"></div></div></td><td style="text-align:right">36%</td></tr>
+                <tr><td>🤖 Android</td><td><div class="progress-bar"><div class="progress-fill" style="width:28%;background:#00c896"></div></div></td><td style="text-align:right">28%</td></tr>
+                <tr><td>🖥 Desktop</td><td><div class="progress-bar"><div class="progress-fill" style="width:20%;background:#3c82ff"></div></div></td><td style="text-align:right">20%</td></tr>
+                <tr><td>📟 Otros</td><td><div class="progress-bar"><div class="progress-fill" style="width:16%;background:#ffb838"></div></div></td><td style="text-align:right">16%</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="card">
+            <div class="card-header"><span class="card-title">Top países</span></div>
+            <table class="data-table">
+              <tbody>
+                <tr><td>🇲🇽 México</td><td><div class="progress-bar"><div class="progress-fill" style="width:62%"></div></div></td><td style="text-align:right">62%</td></tr>
+                <tr><td>🇺🇸 EE.UU.</td><td><div class="progress-bar"><div class="progress-fill" style="width:14%"></div></div></td><td style="text-align:right">14%</td></tr>
+                <tr><td>🇪🇸 España</td><td><div class="progress-bar"><div class="progress-fill" style="width:11%"></div></div></td><td style="text-align:right">11%</td></tr>
+                <tr><td>🇦🇷 Argentina</td><td><div class="progress-bar"><div class="progress-fill" style="width:8%"></div></div></td><td style="text-align:right">8%</td></tr>
+                <tr><td>🌍 Otros</td><td><div class="progress-bar"><div class="progress-fill" style="width:5%"></div></div></td><td style="text-align:right">5%</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ──── ESCANEOS ──── -->
+      <div id="page-scans" class="page">
+        <div style="margin-bottom:20px">
+          <h2 style="font-size:1.2rem">Registro de escaneos</h2>
+          <p class="text-muted">Cada vez que alguien escanea tu QR</p>
+        </div>
+        <div class="card">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>QR Code</th>
+                <th>Fecha/Hora</th>
+                <th>Dispositivo</th>
+                <th>País</th>
+                <th>Ciudad</th>
+                <th>Estado</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td><strong>Menu Restaurante</strong></td><td>Hoy, 14:32</td><td>📱 iPhone 15</td><td>🇲🇽 México</td><td>Veracruz</td><td><span class="pill pill-green">Éxito</span></td></tr>
+              <tr><td><strong>WiFi Oficina</strong></td><td>Hoy, 13:51</td><td>🤖 Samsung S24</td><td>🇲🇽 México</td><td>Xalapa</td><td><span class="pill pill-green">Éxito</span></td></tr>
+              <tr><td><strong>Tarjeta Digital</strong></td><td>Hoy, 11:20</td><td>🖥 Chrome/Mac</td><td>🇺🇸 EE.UU.</td><td>New York</td><td><span class="pill pill-green">Éxito</span></td></tr>
+              <tr><td><strong>Menu Restaurante</strong></td><td>Ayer, 20:05</td><td>📱 iPhone 14</td><td>🇲🇽 México</td><td>Coatepec</td><td><span class="pill pill-green">Éxito</span></td></tr>
+              <tr><td><strong>Tarjeta Digital</strong></td><td>Ayer, 18:44</td><td>🤖 Pixel 7</td><td>🇪🇸 España</td><td>Madrid</td><td><span class="pill pill-green">Éxito</span></td></tr>
+              <tr><td><strong>WiFi Oficina</strong></td><td>Ayer, 09:12</td><td>📱 iPhone 13</td><td>🇲🇽 México</td><td>Veracruz</td><td><span class="pill pill-red">Inactivo</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ──── LINKS DINÁMICOS ──── -->
+      <div id="page-links" class="page">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px">
+          <div>
+            <h2 style="font-size:1.2rem">Links Dinámicos</h2>
+            <p class="text-muted">Cambia el destino de tus QR sin reimprimir</p>
+          </div>
+        </div>
+        <div class="card mb-16" style="background:rgba(0,200,150,0.04);border-color:rgba(0,200,150,0.2)">
+          <div style="display:flex;gap:12px;align-items:flex-start">
+            <div style="font-size:1.5rem">💡</div>
+            <div>
+              <p style="font-weight:600;font-size:0.9rem;margin-bottom:4px">¿Cómo funciona?</p>
+              <p class="text-muted" style="font-size:0.83rem;line-height:1.6">Cada QR dinámico apunta a un short link de QRFlex. Cuando alguien lo escanea, es redirigido automáticamente al URL de destino. Puedes cambiar ese URL en cualquier momento desde aquí — sin necesidad de reimprimir el QR.</p>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <table class="data-table">
+            <thead>
+              <tr><th>QR Code</th><th>Short Link</th><th>Destino actual</th><th>Escaneos</th><th>Acciones</th></tr>
+            </thead>
+            <tbody id="links-table-body">
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ──── CARPETAS ──── -->
+      <div id="page-folders" class="page">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+          <div><h2 style="font-size:1.2rem">Carpetas</h2><p class="text-muted">Organiza tus QR codes</p></div>
+          <button class="btn btn-primary btn-sm" onclick="openModal('modal-folder')">+ Nueva carpeta</button>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px">
+          <div class="card" style="cursor:pointer;text-align:center;padding:28px 20px" onclick="showToast('Carpeta: Marketing')">
+            <div style="font-size:2rem;margin-bottom:10px">📁</div>
+            <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:0.95rem">Marketing</div>
+            <div class="text-muted text-sm">1 QR · 5,420 escaneos</div>
+          </div>
+          <div class="card" style="cursor:pointer;text-align:center;padding:28px 20px" onclick="showToast('Carpeta: Restaurante')">
+            <div style="font-size:2rem;margin-bottom:10px">📁</div>
+            <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:0.95rem">Restaurante</div>
+            <div class="text-muted text-sm">1 QR · 3,890 escaneos</div>
+          </div>
+          <div class="card" style="cursor:pointer;text-align:center;padding:28px 20px;border-style:dashed" onclick="openModal('modal-folder')">
+            <div style="font-size:2rem;margin-bottom:10px;color:var(--muted)">＋</div>
+            <div class="text-muted text-sm">Nueva carpeta</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ──── EQUIPO ──── -->
+      <div id="page-team" class="page">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+          <div><h2 style="font-size:1.2rem">Equipo</h2><p class="text-muted">Invita colaboradores a tu cuenta</p></div>
+          <button class="btn btn-primary btn-sm" onclick="openModal('modal-invite')">+ Invitar</button>
+        </div>
+        <div class="card">
+          <table class="data-table">
+            <thead><tr><th>Miembro</th><th>Correo</th><th>Rol</th><th>Estado</th><th></th></tr></thead>
+            <tbody>
+              <tr>
+                <td><div style="display:flex;align-items:center;gap:10px"><div class="user-avatar" style="width:32px;height:32px;font-size:0.75rem">DU</div><strong>Demo User</strong></div></td>
+                <td>demo@qrflex.com</td>
+                <td><span class="pill pill-blue">Admin</span></td>
+                <td><span class="pill pill-green">Activo</span></td>
+                <td>—</td>
+              </tr>
+              <tr>
+                <td><div style="display:flex;align-items:center;gap:10px"><div class="user-avatar" style="width:32px;height:32px;font-size:0.75rem;background:#3c82ff">JD</div><strong>Juan Díaz</strong></div></td>
+                <td>juan@empresa.com</td>
+                <td><span class="pill pill-gray">Editor</span></td>
+                <td><span class="pill pill-green">Activo</span></td>
+                <td><button class="btn btn-outline btn-sm" onclick="showToast('Acceso revocado')">Revocar</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ──── SETTINGS ──── -->
+      <div id="page-settings" class="page">
+        <div style="margin-bottom:20px">
+          <h2 style="font-size:1.2rem">Configuración</h2>
+          <p class="text-muted">Personaliza tu cuenta y preferencias</p>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:800px">
+          <div class="card" style="grid-column:1/-1">
+            <div class="card-header"><span class="card-title">Perfil</span></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+              <div class="form-group mb-0"><label style="color:var(--ink)">Nombre</label><input type="text" value="Demo User" style="background:var(--paper);border:1.5px solid var(--border);color:var(--ink)"></div>
+              <div class="form-group mb-0"><label style="color:var(--ink)">Empresa</label><input type="text" value="Mi Empresa" style="background:var(--paper);border:1.5px solid var(--border);color:var(--ink)"></div>
+              <div class="form-group mb-0" style="grid-column:1/-1"><label style="color:var(--ink)">Email</label><input type="email" value="demo@qrflex.com" style="background:var(--paper);border:1.5px solid var(--border);color:var(--ink)"></div>
+            </div>
+            <button class="btn btn-primary btn-sm mt-16" onclick="showToast('✅ Perfil actualizado')">Guardar cambios</button>
+          </div>
+          <div class="card">
+            <div class="card-header"><span class="card-title">Dominio personalizado</span></div>
+            <p class="text-muted text-sm mb-16">Usa tu propio dominio para los short links</p>
+            <div class="form-group mb-0"><label style="color:var(--ink)">Tu dominio</label><input type="text" placeholder="qr.tudominio.com" style="background:var(--paper);border:1.5px solid var(--border);color:var(--ink)"></div>
+            <button class="btn btn-outline btn-sm mt-16" onclick="showToast('🔗 Dominio configurado')">Verificar dominio</button>
+          </div>
+          <div class="card">
+            <div class="card-header"><span class="card-title">Notificaciones</span></div>
+            <div style="display:flex;flex-direction:column;gap:14px">
+              <label style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;font-size:0.87rem">
+                Reporte semanal
+                <input type="checkbox" checked>
+              </label>
+              <label style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;font-size:0.87rem">
+                Alertas de escaneos
+                <input type="checkbox" checked>
+              </label>
+              <label style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;font-size:0.87rem">
+                Novedades del producto
+                <input type="checkbox">
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ──── BILLING ──── -->
+      <div id="page-billing" class="page">
+        <div style="margin-bottom:20px">
+          <h2 style="font-size:1.2rem">Facturación</h2>
+          <p class="text-muted">Tu plan y uso actual</p>
+        </div>
+        <div style="max-width:680px;display:flex;flex-direction:column;gap:16px">
+          <div class="card" style="border-color:var(--accent);background:rgba(255,77,46,0.02)">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px">
+              <div>
+                <span class="pill pill-red" style="margin-bottom:8px">Plan Growth</span>
+                <div style="font-family:'Syne',sans-serif;font-size:1.8rem;font-weight:800">$79<span style="font-size:1rem;font-weight:400;color:var(--muted)">/mes</span></div>
+              </div>
+              <button class="btn btn-outline btn-sm" onclick="showToast('Redirigiendo a Stripe...')">Cambiar plan</button>
+            </div>
+            <div class="plan-usage">
+              <div class="plan-usage-row"><span>QR Codes activos</span><span>3 / 200</span></div>
+              <div class="progress-bar"><div class="progress-fill" style="width:1.5%"></div></div>
+            </div>
+            <div class="plan-usage">
+              <div class="plan-usage-row"><span>Escaneos este mes</span><span>12,480 / ∞</span></div>
+              <div class="progress-bar"><div class="progress-fill" style="width:100%;background:var(--accent2)"></div></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header"><span class="card-title">Historial de pagos</span></div>
+            <table class="data-table">
+              <thead><tr><th>Fecha</th><th>Concepto</th><th>Monto</th><th>Estado</th></tr></thead>
+              <tbody>
+                <tr><td>Mar 1, 2026</td><td>Plan Growth — Mensual</td><td>$79.00</td><td><span class="pill pill-green">Pagado</span></td></tr>
+                <tr><td>Feb 1, 2026</td><td>Plan Growth — Mensual</td><td>$79.00</td><td><span class="pill pill-green">Pagado</span></td></tr>
+                <tr><td>Ene 1, 2026</td><td>Plan Growth — Mensual</td><td>$79.00</td><td><span class="pill pill-green">Pagado</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════ MODALS ═══════════════════════════════════ -->
+
+<!-- Modal editar link -->
+<div class="modal-overlay" id="modal-edit-link">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('modal-edit-link')">✕</button>
+    <h3>✏️ Editar destino del QR</h3>
+    <p class="text-muted text-sm mb-16">Cambia el URL de destino sin reimprimir el QR code</p>
+    <div class="form-group">
+      <label>Nombre del QR</label>
+      <input type="text" id="edit-qr-name" readonly style="background:var(--paper);border:1.5px solid var(--border);color:var(--ink)">
+    </div>
+    <div class="form-group">
+      <label>Short Link (no editable)</label>
+      <input type="text" id="edit-short-link" readonly style="background:var(--paper);border:1.5px solid var(--border);color:var(--muted);font-family:monospace">
+    </div>
+    <div class="form-group">
+      <label>Nuevo URL de destino ⬅ Edita aquí</label>
+      <input type="url" id="edit-dest-url" placeholder="https://nuevo-destino.com" style="background:var(--paper);border:1.5px solid var(--border);color:var(--ink)">
+    </div>
+    <div style="display:flex;gap:10px;margin-top:8px">
+      <button class="btn btn-primary" style="flex:1" onclick="saveEditLink()">💾 Guardar nuevo destino</button>
+      <button class="btn btn-outline" onclick="closeModal('modal-edit-link')">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal carpeta -->
+<div class="modal-overlay" id="modal-folder">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('modal-folder')">✕</button>
+    <h3>📁 Nueva carpeta</h3>
+    <div class="form-group">
+      <label>Nombre de la carpeta</label>
+      <input type="text" placeholder="Ej: Campaña Verano 2026" style="background:var(--paper);border:1.5px solid var(--border);color:var(--ink)">
+    </div>
+    <button class="btn btn-primary" style="width:100%" onclick="closeModal('modal-folder');showToast('📁 Carpeta creada')">Crear carpeta</button>
+  </div>
+</div>
+
+<!-- Modal invitar -->
+<div class="modal-overlay" id="modal-invite">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('modal-invite')">✕</button>
+    <h3>👥 Invitar miembro</h3>
+    <div class="form-group">
+      <label>Correo electrónico</label>
+      <input type="email" placeholder="colaborador@empresa.com" style="background:var(--paper);border:1.5px solid var(--border);color:var(--ink)">
+    </div>
+    <div class="form-group">
+      <label>Rol</label>
+      <select style="background:var(--paper);border:1.5px solid var(--border);color:var(--ink)">
+        <option>Editor</option>
+        <option>Visualizador</option>
+        <option>Admin</option>
+      </select>
+    </div>
+    <button class="btn btn-primary" style="width:100%" onclick="closeModal('modal-invite');showToast('✉️ Invitación enviada')">Enviar invitación</button>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════ STATE ═══════════════
+let qrInstance = null;
+let currentEditIndex = null;
+let logoDataUrl = null;
+
+const qrCodes = [
+  { id: 1, name: 'Menu Restaurante', type: 'menu', url: 'https://menu.restaurante.com', shortCode: 'men123', scans: 5420, active: true, color: '#0a0a0f', bg: '#ffffff' },
+  { id: 2, name: 'WiFi Oficina', type: 'wifi', url: 'WIFI:T:WPA;S:OficinaWifi;P:pass1234;;', shortCode: 'wif456', scans: 3890, active: true, color: '#1a1a2e', bg: '#ffffff' },
+  { id: 3, name: 'Tarjeta Digital', type: 'vcard', url: 'https://vcard.qrflex.link/demo', shortCode: 'vcd789', scans: 3170, active: true, color: '#ff4d2e', bg: '#ffffff' },
+];
+
+// ═══════════════ LANDING / AUTH ═══════════════
+function showAuth(tab) {
+  document.getElementById('landing').style.display = 'none';
+  document.getElementById('auth-screen').style.display = 'flex';
+  switchAuthTab(tab);
+}
+
+function goBack() {
+  document.getElementById('landing').style.display = 'flex';
+  document.getElementById('auth-screen').style.display = 'none';
+}
+
+function switchAuthTab(tab) {
+  document.getElementById('tab-login').classList.toggle('active', tab === 'login');
+  document.getElementById('tab-register').classList.toggle('active', tab === 'register');
+  document.getElementById('form-login').style.display = tab === 'login' ? 'block' : 'none';
+  document.getElementById('form-register').style.display = tab === 'register' ? 'block' : 'none';
+}
+
+function doLogin() {
+  document.getElementById('auth-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  renderQRList();
+  renderLinksTable();
+  generatePreviewQR();
+}
+
+// ═══════════════ NAVIGATION ═══════════════
+const pageTitles = {
+  'dashboard': 'Dashboard',
+  'my-qrs': 'Mis QR Codes',
+  'creator': 'Crear QR Code',
+  'analytics': 'Analytics',
+  'scans': 'Registro de Escaneos',
+  'links': 'Links Dinámicos',
+  'folders': 'Carpetas',
+  'team': 'Equipo',
+  'settings': 'Configuración',
+  'billing': 'Facturación',
+};
+
+function navTo(page, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  if (el) el.classList.add('active');
+  document.getElementById('topbar-title').textContent = pageTitles[page] || page;
+  if (page === 'creator') { generatePreviewQR(); }
+  if (page === 'my-qrs') { renderQRList(); }
+  if (page === 'links') { renderLinksTable(); }
+}
+
+// ═══════════════ QR LIST ═══════════════
+function renderQRList() {
+  const grid = document.getElementById('qr-list-grid');
+  document.getElementById('qr-count-badge').textContent = qrCodes.length;
+  grid.innerHTML = qrCodes.map((qr, i) => `
+    <div class="qr-card">
+      <div class="qr-status ${qr.active ? '' : 'inactive'}"></div>
+      <div class="qr-preview" id="qr-mini-${i}"></div>
+      <div class="qr-card-name">${qr.name}</div>
+      <div class="qr-card-type">${typeLabel(qr.type)}</div>
+      <div class="qr-card-stats">
+        <span>👁 ${qr.scans.toLocaleString()}</span>
+        <span>${qr.active ? '🟢 Activo' : '⚫ Inactivo'}</span>
+      </div>
+      <hr class="divider">
+      <div style="display:flex;gap:6px;justify-content:center;flex-wrap:wrap">
+        <button class="btn btn-outline btn-sm" onclick="openEditLink(${i})">✏️ Editar link</button>
+        <button class="btn btn-outline btn-sm" onclick="downloadMiniQR(${i})">⬇</button>
+      </div>
+    </div>
+  `).join('') + `
+    <div class="qr-card" style="border-style:dashed;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;min-height:200px" onclick="navTo('creator',null)">
+      <div style="font-size:2.5rem;color:var(--muted)">＋</div>
+      <p style="font-size:0.85rem;color:var(--muted)">Crear nuevo QR</p>
+    </div>
+  `;
+
+  // Render mini QRs
+  qrCodes.forEach((qr, i) => {
+    const el = document.getElementById('qr-mini-' + i);
+    el.innerHTML = '';
+    new QRCode(el, {
+      text: qr.url,
+      width: 80, height: 80,
+      colorDark: qr.color,
+      colorLight: qr.bg,
+      correctLevel: QRCode.CorrectLevel.M
+    });
+  });
+}
+
+function typeLabel(t) {
+  const map = { url:'🌐 URL', vcard:'👤 vCard', wifi:'📶 WiFi', pdf:'📄 PDF', menu:'🍽 Menú', video:'🎬 Video', social:'📱 Social', event:'📅 Evento', app:'📲 App' };
+  return map[t] || t;
+}
+
+// ═══════════════ CREATOR ═══════════════
+function selectType(btn, type) {
+  document.querySelectorAll('.qr-type-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  updatePreview();
+}
+
+function generatePreviewQR() {
+  const el = document.getElementById('qr-output');
+  if (!el) return;
+  el.innerHTML = '';
+  const url = document.getElementById('qr-url-input')?.value || 'https://qrflex.link';
+  const fg = document.getElementById('qr-fg-color')?.value || '#000000';
+  const bg = document.getElementById('qr-bg-color')?.value || '#ffffff';
+  qrInstance = new QRCode(el, {
+    text: url || 'https://qrflex.link',
+    width: 190, height: 190,
+    colorDark: fg,
+    colorLight: bg,
+    correctLevel: QRCode.CorrectLevel.M
+  });
+  // Update short code
+  document.getElementById('short-code').textContent = Math.random().toString(36).substr(2, 6);
+}
+
+function updatePreview() {
+  clearTimeout(window._qrTimer);
+  window._qrTimer = setTimeout(generatePreviewQR, 300);
+}
+
+function handleLogoUpload(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    logoDataUrl = ev.target.result;
+    const prev = document.getElementById('qr-logo-preview');
+    prev.src = logoDataUrl;
+    prev.style.display = 'block';
+    showToast('Logo cargado — se aplicará al QR');
+  };
+  reader.readAsDataURL(file);
+}
+
+function downloadQR(format) {
+  const canvas = document.querySelector('#qr-output canvas');
+  if (!canvas) return showToast('Genera un QR primero');
+  const link = document.createElement('a');
+  link.download = 'qrflex-code.' + format;
+  link.href = canvas.toDataURL('image/' + (format === 'jpg' ? 'jpeg' : 'png'));
+  link.click();
+  showToast('⬇ Descargando ' + format.toUpperCase() + '...');
+}
+
+function downloadMiniQR(i) {
+  showToast('⬇ Descargando QR: ' + qrCodes[i].name);
+}
+
+function saveQR() {
+  const name = document.getElementById('qr-name-input').value.trim() || 'Nuevo QR';
+  const url = document.getElementById('qr-url-input').value.trim() || 'https://qrflex.link';
+  const color = document.getElementById('qr-fg-color').value;
+  const bg = document.getElementById('qr-bg-color').value;
+  const sc = Math.random().toString(36).substr(2,6);
+  qrCodes.push({ id: Date.now(), name, type: 'url', url, shortCode: sc, scans: 0, active: true, color, bg });
+  document.getElementById('qr-name-input').value = '';
+  document.getElementById('qr-url-input').value = 'https://ejemplo.com';
+  showToast('✅ QR "' + name + '" guardado exitosamente');
+  renderLinksTable();
+}
+
+// ═══════════════ LINKS ═══════════════
+function renderLinksTable() {
+  const tbody = document.getElementById('links-table-body');
+  if (!tbody) return;
+  tbody.innerHTML = qrCodes.map((qr, i) => `
+    <tr>
+      <td><strong>${qr.name}</strong><br><span style="font-size:0.75rem;color:var(--muted)">${typeLabel(qr.type)}</span></td>
+      <td><code style="font-size:0.78rem;background:var(--paper);padding:3px 8px;border-radius:4px">qrflex.link/r/${qr.shortCode}</code></td>
+      <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:0.83rem">${qr.url}</td>
+      <td>${qr.scans.toLocaleString()}</td>
+      <td><button class="btn btn-primary btn-sm" onclick="openEditLink(${i})">✏️ Cambiar URL</button></td>
+    </tr>
+  `).join('');
+}
+
+function openEditLink(i) {
+  currentEditIndex = i;
+  const qr = qrCodes[i];
+  document.getElementById('edit-qr-name').value = qr.name;
+  document.getElementById('edit-short-link').value = 'qrflex.link/r/' + qr.shortCode;
+  document.getElementById('edit-dest-url').value = qr.url;
+  openModal('modal-edit-link');
+}
+
+function saveEditLink() {
+  const newUrl = document.getElementById('edit-dest-url').value.trim();
+  if (!newUrl) return showToast('Escribe un URL válido');
+  qrCodes[currentEditIndex].url = newUrl;
+  closeModal('modal-edit-link');
+  renderLinksTable();
+  renderQRList();
+  showToast('✅ Destino actualizado — sin reimprimir el QR');
+}
+
+// ═══════════════ MODALS ═══════════════
+function openModal(id) {
+  document.getElementById(id).classList.add('open');
+}
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+}
+
+// ═══════════════ TOAST ═══════════════
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(window._toastTimer);
+  window._toastTimer = setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+// Click outside modal closes it
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', e => {
+    if (e.target === overlay) overlay.classList.remove('open');
+  });
+});
+
+// Init
+generatePreviewQR();
+</script>
+</body>
+</html>
